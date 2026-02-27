@@ -1,0 +1,9 @@
+---
+title: "Assignment5A"
+format: html
+editor: visual
+---
+
+## Approach
+
+For this assignment i am going to attempt to leverage mySQL and create a database with the data given. I think it will be good practice and good experience. Alot of this assignment will be learning the functions from tidyverse on how to clean up data. I will leverage LLM where needed to possibly explore options from tidyverse and see if there is a list of functions. I find using LLM to describe best practices to problems is also a good way to use the LLM.
