@@ -7,3 +7,73 @@ editor: visual
 ## Approach
 
 For this assignment i am going to attempt to leverage mySQL and create a database with the data given. I think it will be good practice and good experience. Alot of this assignment will be learning the functions from tidyverse on how to clean up data. I will leverage LLM where needed to possibly explore options from tidyverse and see if there is a list of functions. I find using LLM to describe best practices to problems is also a good way to use the LLM.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+airlines_data <- "airline,status,Los_Angeles,Phoenix,San_Diego,San_Francisco,Seattle
+ALASKA,on time,497,221,212,503,1841
+ALASKA,delayed,62,12,20,102,305
+AM WEST,on time,694,4840,383,320,201
+AM WEST,delayed,117,415,65,129,61"
+
+write.csv(read.csv(text = airlines_data), "airlines.csv", row.names = FALSE)
+
+airlines <- read.csv("airlines.csv")
+airlines
+
+```
+
+```{r}
+airlines_tidy <- airlines %>%
+  pivot_longer(
+    cols = c(Los_Angeles, Phoenix, San_Diego, San_Francisco, Seattle),
+    names_to = "destination",
+    values_to = "flights"
+  )
+airlines_tidy
+```
+
+```{r}
+airlines_wide <- airlines_tidy %>%
+  pivot_wider(
+    names_from = status,
+    values_from = flights
+  ) %>%
+  rename(on_time = `on time`) %>%
+  mutate(
+    total = on_time + delayed,
+    delay_rate = round(delayed / total * 100, 1)
+  )
+airlines_wide
+```
+
+```{r}
+overall <- airlines_wide %>%
+  group_by(airline) %>%
+  summarise(
+    total_flights = sum(total),
+    total_delayed = sum(delayed),
+    overall_delay_rate = round(total_delayed / total_flights * 100, 1)
+  )
+overall
+```
+
+```{r}
+ggplot(airlines_wide, aes(x = destination, y = delay_rate, fill = airline)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Delay Rate by Destination and Airline",
+    x = "Destination",
+    y = "Delay Rate (%)",
+    fill = "Airline"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("steelblue", "tomato"))
+```
+
+## Conclusions
+
+After tidying and transforming the data, the analysis reveals an interesting paradox. On the surface, AM WEST appears to have a lower overall delay rate than ALASKA. However, when broken down by destination, ALASKA actually outperforms AM WEST at every single city.
